@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="깅혱잉">
+<meta name="theme-color" content="#f4f1ec">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>깅혱잉 옷입히기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 친구 놀리기 좋은 장난감 — 가볍고 귀엽게
+   IDEA: 종이인형 옷장 — 무대 위 깅혱잉, 옆에 옷걸이 칸
+   PICTURE: 세로로 긴 무대에 첨부 그림 그대로의 깅혱잉, 옷은 같은 선화 굵기로 겹쳐 입힘, 말풍선은 끌어서 옮김
+   COLOUR and TYPE: 따뜻한 회백 바탕, 장미색 강조 #f0567a; 제목·탭·말풍선 Jua, 본문 시스템 고딕
+   LAYOUT: 좁으면 무대 → 탭 → 옷칸 → 버튼, 넓으면 무대 왼쪽·옷장 오른쪽 */
+:root{color-scheme:light dark;--bg:light-dark(#f4f1ec,#151413);--panel:light-dark(#fff,#201f1d);--ink:light-dark(#1d1b1a,#eeeae5);--muted:light-dark(#77706a,#9d968f);--line:light-dark(#e7e2db,#34312e);--acc:#f0567a;--tile:light-dark(#faf8f5,#2a2826)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+.band{padding:calc(env(safe-area-inset-top) + clamp(16px,3vw,36px)) max(16px,env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.wrap{max-width:1040px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media(min-width:860px){.wrap{grid-template-columns:minmax(0,.95fr) minmax(0,1fr);align-items:start}.stagecol{position:sticky;top:16px}}
+h1{font:400 32px/1.05 Jua,sans-serif;margin:0 0 4px;text-wrap:balance}
+.sub{margin:0 0 12px;color:var(--muted);font-size:15px}
+.stage{background:var(--panel);border-radius:24px;padding:10px;border:1px solid var(--line);max-width:460px;margin-inline:auto}
+#scene{display:block;width:100%;height:auto;aspect-ratio:728/1120;border-radius:16px;touch-action:none}
+#person{transform-box:fill-box;transform-origin:50% 100%}
+#person.hop{animation:hop .38s ease-out}
+@keyframes hop{40%{transform:translateY(-14px)}}
+@media(prefers-reduced-motion:reduce){#person.hop{animation:none}}
+#Lbub{cursor:grab}#Lbub.drag{cursor:grabbing}
+.closet{background:var(--panel);border-radius:24px;border:1px solid var(--line);padding:12px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;min-height:44px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font:400 18px/1 Jua,sans-serif;cursor:pointer}
+.tab[aria-selected=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.it{display:grid;gap:4px;justify-items:center;padding:8px 6px;border-radius:16px;border:1px solid var(--line);background:var(--tile);color:var(--ink);cursor:pointer;font:500 14px/1.3 inherit}
+.it svg{width:100%;max-width:84px;aspect-ratio:1;display:block}
+.it .none{width:100%;max-width:84px;aspect-ratio:1;display:grid;place-items:center;border:2px dashed var(--line);border-radius:50%;color:var(--muted);font-size:13px}
+.it[aria-pressed=true]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset;background:light-dark(#fff0f4,#3a2229)}
+.bp{display:grid;gap:12px}
+.bp label{font-weight:600;font-size:15px}
+.bp input[type=text]{width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--tile);color:var(--ink);font:16px/1.4 inherit;padding:0 14px}
+.bp input[type=text]:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.pill{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font:400 17px/1 Jua,sans-serif;cursor:pointer}
+.pill[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+.hint{margin:0;color:var(--muted);font-size:14px}
+.acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.b{min-height:52px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:400 17px/1 Jua,sans-serif;cursor:pointer}
+.b.main{background:var(--acc);border-color:var(--acc);color:#fff}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:20px;z-index:5}
+.ov[hidden]{display:none}
+.sheet{background:var(--panel);border-radius:22px;padding:14px;width:min(400px,100%);text-align:center;max-height:100%;overflow:auto}
+.sheet img{width:100%;border-radius:14px;display:block;-webkit-touch-callout:default}
+.sheet p{margin:10px 0;color:var(--muted);font-size:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+<div class="band"><div class="wrap">
+ <div class="stagecol">
+  <h1>깅혱잉 옷입히기</h1>
+  <p class="sub">옷을 골라 입히고, 말풍선으로 한마디 시켜 보세요.</p>
+  <div class="stage">
+   <svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="-60 -70 728 1120" role="img" aria-label="옷을 입은 깅혱잉">
+    <defs id="defs"></defs>
+    <g id="Lbg"></g>
+    <ellipse cx="304" cy="1030" rx="125" ry="15" fill="#000" fill-opacity=".14"/>
+    <g id="person"><image id="char" href="gk.png" x="0" y="0" width="608" height="1033"/><g id="Lwear"></g><image id="hair" href="gk_hair.png" x="195" y="180" width="223" height="222"/><g id="Lacc"></g></g>
+    <g id="Lbub"></g>
+   </svg>
+  </div>
+ </div>
+ <div>
+  <div class="closet">
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div id="panel"></div>
+  </div>
+  <div class="acts"><button type="button" class="b main" id="rand">랜덤</button><button type="button" class="b" id="shotBtn">사진 찍기</button><button type="button" class="b" id="reset">기본 옷</button></div>
+ </div>
+</div></div>
+<div class="ov" id="ov" hidden><div class="sheet" role="dialog" aria-label="사진">
+ <img id="shot" alt="옷을 입은 깅혱잉 사진">
+ <p id="msg">사진을 길게 눌러 저장하거나 공유하세요.</p>
+ <div class="row"><button type="button" class="b main" id="share">공유하기</button><button type="button" class="b" id="close">닫기</button></div>
+</div></div>
+<script>
+{
+const VB={x:-60,y:-70,w:728,h:1120};
+const K='stroke="#222" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
+const M=s=>`<g transform="translate(608 0) scale(-1 1)">${s}</g>`;
+const MF=s=>`<g transform="translate(605 0) scale(-1 1)">${s}</g>`;
+const TS='M260 198Q300 238 338 198L402 208Q428 246 446 290L402 322L398 330L384 400L400 480Q302 494 206 480L216 400L204 330L200 322L160 290Q178 244 204 208Z';
+const PUFF='M260 198Q300 238 338 198L402 208Q446 222 456 262Q458 300 404 318L398 330L384 400L400 480Q302 494 206 480L216 400L204 330L198 318Q144 300 146 262Q156 220 204 208Z';
+const SL='M160 290L42 506L66 530L200 322Z';
+const SH='M204 482H402L410 578L308 578L303 540L298 578L195 578Z';
+const PL='M204 482H402L410 580L396 700L384 820L372 975L340 975L338 820L334 700L314 600L303 556L292 600L276 700L270 820L268 975L236 975L222 820L208 700L196 580Z';
+const WIDE='M204 482H402L428 975H318L303 590L288 975H178Z';
+const MINI='M206 478H400L430 604Q303 622 176 604Z';
+const LONG='M206 478H400L454 806Q303 826 152 806Z';
+const DSK='M206 470H400L462 770Q303 792 144 770Z';
+const DEFS=`<clipPath id="tc"><path d="${TS}"/></clipPath><clipPath id="dc"><path d="${DSK}"/></clipPath><clipPath id="lc"><path d="${LONG}"/></clipPath>`;
+document.getElementById('defs').innerHTML=DEFS;
+
+const sleeves=(fill,cuff)=>`<g fill="${fill}" ${K}><path d="${SL}"/>${M(`<path d="${SL}"/>`)}</g>${cuff?`<g stroke="${cuff}" stroke-width="10" stroke-linecap="round"><path d="M50 494L70 516"/>${M('<path d="M50 494L70 516"/>')}</g>`:''}`;
+const top=(fill,extra,long,cuff,shape)=>`${long?sleeves(fill,cuff):''}<path d="${shape||TS}" fill="${fill}" ${K}/>${extra||''}`;
+let stripes='';for(let y=226;y<500;y+=26)stripes+=`<rect x="30" y="${y}" width="548" height="11" fill="#2b3a55"/>`;
+let checks='';for(let x=40;x<580;x+=28)checks+=`<rect x="${x}" y="190" width="12" height="350" fill="#fff" fill-opacity=".35"/>`;for(let y=200;y<540;y+=28)checks+=`<rect x="30" y="${y}" width="560" height="12" fill="#8c1c1c" fill-opacity=".35"/>`;
+const flw=(pts,cols,r=8)=>pts.map(([x,y],i)=>`<g transform="translate(${x} ${y})">${[0,72,144,216,288].map(a=>`<circle cx="${(r*Math.cos(a*Math.PI/180)).toFixed(1)}" cy="${(r*Math.sin(a*Math.PI/180)).toFixed(1)}" r="${r*.8}" fill="${cols[i%cols.length]}"/>`).join('')}<circle r="${r*.5}" fill="#ffb300"/></g>`).join('');
+const TOPS=[{n:'흰 티',s:''},
+ {n:'분홍 블라우스',s:top('#ffd3df',`<path d="M262 201Q262 236 298 236Q300 222 300 214Q300 222 302 236Q338 236 336 201Q300 230 262 201Z" fill="#fff" ${K}/><g fill="#fff" ${K}><circle cx="302" cy="270" r="5"/><circle cx="302" cy="320" r="5"/><circle cx="302" cy="370" r="5"/></g>`,0,0,PUFF)},
+ {n:'줄무늬 니트',s:top('#f6efe2',`<g clip-path="url(#tc)">${stripes}</g><path d="${TS}" fill="none" ${K}/>`,1,'#2b3a55')},
+ {n:'노란 가디건',s:top('#f3c34a',`<path d="M268 206L300 226L332 206L320 330H284Z" fill="#fff" ${K}/><path d="M302 330V486" stroke="#c9952a" stroke-width="3"/><g fill="#fff" ${K}><circle cx="314" cy="360" r="5"/><circle cx="314" cy="400" r="5"/><circle cx="314" cy="440" r="5"/></g><g fill="none" stroke="#d9a73a" stroke-width="8"><path d="M210 472Q302 486 398 472"/></g>`,1,'#d9a73a')},
+ {n:'민트 후드티',s:top('#8fd8c0',`<path d="M248 210Q302 268 356 210" fill="none" stroke="#6cbfa5" stroke-width="12" stroke-linecap="round"/><path d="M290 230V280M314 230V280" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M244 400H362L372 460H234Z" fill="#7ccab1" ${K}/>`,1,'#6cbfa5')},
+ {n:'체크 셔츠',s:top('#d94848',`<g clip-path="url(#tc)">${checks}</g><path d="${TS}" fill="none" ${K}/><path d="M262 201L284 248L302 222L320 248L336 201" fill="#b83232" ${K}/><path d="M302 224V486" stroke="#8c1c1c" stroke-width="3"/>`,1,'#b83232')}];
+
+const bot=(d,fill,extra)=>`<path d="${d}" fill="${fill}" ${K}/>${extra||''}`;
+let pleats='';for(let i=0;i<9;i++){const t=i/8;pleats+=`<path d="M${(214+t*178).toFixed(0)} 486L${(166+t*276).toFixed(0)} 810" stroke="#1e2a44" stroke-width="2.5"/>`}
+const BOTS=[{n:'흰 반바지',s:''},
+ {n:'분홍 미니스커트',s:bot(MINI,'#ff8fb1',`<path d="M206 478H400V494H206Z" fill="#f2668f" ${K}/><path d="M250 496L236 606M302 498V616M354 496L368 606" stroke="#f2668f" stroke-width="2.5"/>`)},
+ {n:'플리츠 롱스커트',s:bot(LONG,'#2b3a55',`<g clip-path="url(#lc)">${pleats}</g><path d="${LONG}" fill="none" ${K}/>`)},
+ {n:'청바지',s:bot(PL,'#5b84c4',`<g fill="none" stroke="#3f68a8" stroke-width="3"><path d="M303 490V552"/><path d="M238 960H268M340 960H372"/><path d="M210 506Q232 520 238 486M396 506Q374 520 368 486"/></g>`)},
+ {n:'베이지 와이드팬츠',s:bot(WIDE,'#e6d3b3',`<path d="M246 520L236 970M360 520L370 970" stroke="#cdb48c" stroke-width="2.5"/><path d="M204 482H402V500H204Z" fill="#cdb48c" ${K}/>`)},
+ {n:'청 반바지',s:bot(SH,'#6f9bd6',`<g fill="none" stroke="#4a77b5" stroke-width="3"><path d="M303 490V538"/><path d="M198 566H298M308 566H408"/></g>`)}];
+
+const DRESS=[{n:'없음',s:''},
+ {n:'꽃무늬 원피스',s:`<path d="${DSK}" fill="#ffe27a" ${K}/><g clip-path="url(#dc)">${flw([[220,520],[300,560],[380,520],[250,640],[340,650],[200,720],[300,730],[400,700],[440,760],[170,760]],['#ff8fb1','#fff','#7cc6ff'],10)}</g><path d="${DSK}" fill="none" ${K}/>${top('#ffe27a',`<g clip-path="url(#tc)">${flw([[250,280],[340,300],[290,380],[230,440],[370,430]],['#ff8fb1','#fff','#7cc6ff'],10)}</g><path d="${TS}" fill="none" ${K}/><path d="M212 462Q302 476 396 462" fill="none" stroke="#f2b93a" stroke-width="10"/>`)}`},
+ {n:'핑크 퍼프 원피스',s:`<path d="${DSK}" fill="#ffb3c8" ${K}/><path d="M150 742Q303 764 456 742L462 770Q303 792 144 770Z" fill="#fff" ${K}/>${top('#ffb3c8',`<path d="M262 201Q300 238 336 201" fill="none" stroke="#fff" stroke-width="8"/><path d="M276 462Q302 452 302 470Q302 452 330 462Q330 486 302 476Q302 494 276 486Z" fill="#f0567a" ${K}/>`,0,0,PUFF)}`},
+ {n:'체크 롱원피스',s:`<path d="M206 470H400L470 900Q303 924 136 900Z" fill="#3d6b5a" ${K}/><g clip-path="url(#dc)"></g>${(()=>{let g='';for(let y=520;y<900;y+=40)g+=`<path d="M${(206-(y-470)*.163).toFixed(0)} ${y}H${(400+(y-470)*.163).toFixed(0)}" stroke="#fff" stroke-opacity=".3" stroke-width="6"/>`;for(let x=-4;x<=4;x++)g+=`<path d="M${303+x*22} 470L${303+x*38} 905" stroke="#fff" stroke-opacity=".3" stroke-width="6"/>`;return g})()}<path d="M206 470H400L470 900Q303 924 136 900Z" fill="none" ${K}/>${top('#3d6b5a',`<path d="M262 201L284 244L302 222L320 244L336 201" fill="#fff" ${K}/><g fill="#fff"><circle cx="302" cy="270" r="5"/><circle cx="302" cy="320" r="5"/><circle cx="302" cy="370" r="5"/></g>`,1,'#2f5547')}`}];
+
+const SHO='M236 968Q268 964 272 988L278 1026Q240 1040 196 1031Q188 1016 204 1004Q226 994 232 980Z';
+const BOO='M220 850H278L280 1026Q240 1040 196 1031Q188 1016 204 1004Q222 996 222 980Z';
+const pair=s=>s+MF(s);
+const SHOES=[{n:'맨발',s:''},
+ {n:'운동화',s:pair(`<path d="${SHO}" fill="#fff" ${K}/><path d="M196 1024Q240 1034 278 1020" fill="none" stroke="#c8c8c8" stroke-width="5"/><path d="M212 1002Q244 996 272 1006" fill="none" stroke="#f0567a" stroke-width="6" stroke-linecap="round"/>`)},
+ {n:'메리제인',s:pair(`<path d="${SHO}" fill="#1f1b1a" ${K}/><path d="M226 988Q250 980 272 990" fill="none" stroke="#1f1b1a" stroke-width="6"/><circle cx="262" cy="990" r="4" fill="#d8c08a"/>`)},
+ {n:'리본 구두',s:pair(`<path d="${SHO}" fill="#ffb3c8" ${K}/><path d="M220 1004L208 994V1014ZM220 1004L232 994V1014Z" fill="#f0567a" ${K}/>`)},
+ {n:'롱부츠',s:pair(`<path d="${BOO}" fill="#8a5a3c" ${K}/><path d="M218 850H280V866H218Z" fill="#6e4429" ${K}/>`)},
+ {n:'샌들',s:pair(`<path d="M196 1031Q240 1040 280 1027" fill="none" stroke="#c98a55" stroke-width="7" stroke-linecap="round"/><path d="M214 1006Q246 996 274 1004M240 978Q256 976 270 984" fill="none" stroke="#c98a55" stroke-width="6" stroke-linecap="round"/>`)}];
+
+const HATS=[{n:'없음',s:''},
+ {n:'리본 핀',s:`<g transform="rotate(18 362 40)"><path d="M362 40L330 22V58ZM362 40L394 22V58Z" fill="#f0567a" ${K}/><circle cx="362" cy="40" r="8" fill="#c93a5e" ${K}/></g>`},
+ {n:'베레모',s:`<ellipse cx="292" cy="22" rx="92" ry="34" transform="rotate(-8 292 22)" fill="#c9302c" ${K}/><path d="M228 44Q300 60 372 38" fill="none" stroke="#a52622" stroke-width="7"/><path d="M290 -12l4-12" stroke="#222" stroke-width="5" stroke-linecap="round"/>`},
+ {n:'꽃 머리띠',s:`<path d="M234 66Q303 -14 372 66" fill="none" stroke="#7cc66a" stroke-width="7" stroke-linecap="round"/>${flw([[250,40],[276,20],[303,12],[330,20],[356,40]],['#ff8fb1','#fff','#ffd84d','#b48cff','#ff7a5a'],9)}`},
+ {n:'티아라',s:`<path d="M248 46Q303 26 358 46L350 28L330 34L318 12L303 28L288 12L276 34L256 28Z" fill="#e9eef5" stroke="#9aa6b8" stroke-width="3" stroke-linejoin="round"/><circle cx="303" cy="30" r="6" fill="#7cc6ff"/><circle cx="276" cy="36" r="4" fill="#ff8fb1"/><circle cx="330" cy="36" r="4" fill="#ff8fb1"/>`},
+ {n:'고양이 귀',s:`<path d="M240 58Q303 -4 366 58" fill="none" stroke="#1f1b1a" stroke-width="7" stroke-linecap="round"/><g ${K} fill="#1f1b1a"><path d="M248 40L250 -6L284 22Z"/><path d="M358 40L356 -6L322 22Z"/></g><g fill="#ff9ab3"><path d="M256 30L257 6L274 22Z"/><path d="M350 30L349 6L332 22Z"/></g>`},
+ {n:'밀짚모자',s:`<ellipse cx="303" cy="50" rx="128" ry="24" fill="#e3b860" ${K}/><path d="M250 50V14Q250 -12 303 -12Q356 -12 356 14V50Z" fill="#efcd82" ${K}/><rect x="250" y="28" width="106" height="14" fill="#ff8fb1"/><path d="M356 34Q380 44 372 64" fill="none" stroke="#ff8fb1" stroke-width="6" stroke-linecap="round"/>`}];
+
+const FACES=[{n:'없음',s:''},
+ {n:'동그란 안경',s:`<g fill="#fff" fill-opacity=".15" stroke="#7a4a2a" stroke-width="3.5"><circle cx="277" cy="106" r="18"/><circle cx="331" cy="106" r="18"/></g><path d="M295 104Q304 98 313 104" fill="none" stroke="#7a4a2a" stroke-width="3.5"/>`},
+ {n:'하트 선글라스',s:`<g fill="#f0567a" fill-opacity=".9" stroke="#b8304f" stroke-width="3" stroke-linejoin="round"><path transform="translate(277 108) scale(.95)" d="M0 14C-30-4-20-30 0-14C20-30 30-4 0 14Z"/><path transform="translate(331 108) scale(.95)" d="M0 14C-30-4-20-30 0-14C20-30 30-4 0 14Z"/></g><path d="M294 100Q304 94 314 100" fill="none" stroke="#b8304f" stroke-width="3"/>`},
+ {n:'발그레',s:`<g fill="#ff7a8a" fill-opacity=".45"><ellipse cx="262" cy="130" rx="14" ry="8"/><ellipse cx="346" cy="130" rx="14" ry="8"/></g><g stroke="#ff7a8a" stroke-width="2" stroke-linecap="round"><path d="M256 128l-3 5M263 128l-3 5M270 128l-3 5M340 128l-3 5M347 128l-3 5M354 128l-3 5"/></g>`},
+ {n:'반짝이 스티커',s:`<g fill="#ffd84d" stroke="#e0a800" stroke-width="1.5"><path d="M256 132l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="M352 126l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></g><circle cx="344" cy="138" r="3" fill="#7cc6ff"/>`},
+ {n:'마스크',s:`<path d="M264 122Q303 114 342 122L338 160Q303 176 268 160Z" fill="#fff" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/><path d="M268 134Q303 128 338 134M268 146Q303 142 338 146" fill="none" stroke="#ccc" stroke-width="2"/>`}];
+
+const ITEMS=[{n:'없음',s:''},
+ {n:'핸드백',s:`<path d="M548 530Q562 494 584 530" fill="none" stroke="#7a3b2e" stroke-width="5"/><path d="M532 530H600L594 590H538Z" fill="#c9554a" ${K}/><path d="M540 546H592" stroke="#a63d34" stroke-width="3"/><circle cx="566" cy="556" r="5" fill="#ffd84d"/>`},
+ {n:'아이스크림',s:`<path d="M560 520L576 450L592 520Z" transform="rotate(10 576 485)" fill="#e2b170" ${K}/><circle cx="578" cy="446" r="18" fill="#ffb3c8" ${K}/><circle cx="576" cy="420" r="15" fill="#fff1c9" ${K}/><circle cx="576" cy="402" r="5" fill="#e8484f"/>`},
+ {n:'하트 풍선',s:`<path d="M566 520Q596 440 578 360" fill="none" stroke="#555" stroke-width="2"/><path transform="translate(578 330) scale(1.9)" d="M0 14C-30-4-20-30 0-14C20-30 30-4 0 14Z" fill="#ff6f91" ${K}/><ellipse cx="562" cy="306" rx="6" ry="10" fill="#fff" fill-opacity=".55"/>`},
+ {n:'튤립',s:`<path d="M566 524Q574 470 580 420" stroke="#3f9a4a" stroke-width="5" fill="none"/><path d="M576 470Q600 456 604 432Q584 440 576 470Z" fill="#5fbf6a"/><path d="M562 410Q560 380 572 372L580 386L588 372Q600 380 598 410Q580 424 562 410Z" fill="#ff6f91" ${K}/>`}];
+
+let stars='';[[0,20],[80,120],[20,300],[560,80],[620,260],[-20,480],[200,-30],[460,-20],[540,440],[100,560]].forEach(([x,y],i)=>stars+=`<circle cx="${x}" cy="${y}" r="${i%3?2.5:4}" fill="#fff"/>`);
+let conf='';[[-10,60,'#ff5a8a',20],[90,200,'#3f8ef0',-30],[520,10,'#ffd84d',40],[610,240,'#2bb673',-15],[0,420,'#ff8a3d',30],[580,560,'#6d4aff',-40],[160,-20,'#2bb5c0',10],[470,180,'#ff5a8a',-20],[40,700,'#ffd84d',25],[560,760,'#3f8ef0',-10]].forEach(([x,y,c,a])=>conf+=`<rect x="${x}" y="${y}" width="26" height="10" rx="3" fill="${c}" transform="rotate(${a} ${x} ${y})"/>`);
+let flags='';for(let i=0;i<8;i++){const x=-50+i*92;flags+=`<polygon points="${x},${-50+Math.sin(i)*4} ${x+60},${-46+Math.sin(i)*4} ${x+30},0" fill="${['#ff5a5f','#ffd84d','#2bb5c0'][i%3]}"/>`}
+const R=`x="-60" y="-70" width="728" height="1120"`;
+const BGS=[
+ {n:'흰색',s:`<rect ${R} fill="#f7f5f2"/><rect x="-60" y="940" width="728" height="110" fill="#efebe5"/>`},
+ {n:'꽃밭',s:`<rect ${R} fill="#cdeeff"/><ellipse cx="304" cy="1180" rx="640" ry="380" fill="#9ad98a"/>${flw([[-20,900],[60,960],[520,920],[600,980],[130,1010],[470,1020],[-40,1020],[640,900]],['#ff8fb1','#fff','#ffd84d'],12)}`},
+ {n:'밤하늘',s:`<rect ${R} fill="#1f2a52"/>${stars}<circle cx="540" cy="40" r="46" fill="#fff3c4"/><circle cx="562" cy="26" r="42" fill="#1f2a52"/><rect x="-60" y="960" width="728" height="90" fill="#18213f"/>`},
+ {n:'파티',s:`<rect ${R} fill="#ffe1ea"/><path d="M-60 -50Q304 -10 668 -50" fill="none" stroke="#c9a2b0" stroke-width="3"/>${flags}${conf}`},
+ {n:'벚꽃',s:`<rect ${R} fill="#fff0f4"/>${flw([[-20,40],[40,-10],[600,100],[640,30],[560,-30],[-40,200],[620,300],[20,620],[600,700],[-10,860],[640,880]],['#ffc4d6','#ffd6e2'],14)}<rect x="-60" y="960" width="728" height="90" fill="#ffe0ea"/>`},
+ {n:'카페',s:`<rect ${R} fill="#f3e3cf"/><rect x="-60" y="700" width="728" height="350" fill="#d9bf9e"/><path d="M-60 700H668" stroke="#b99a74" stroke-width="6"/><rect x="430" y="80" width="190" height="230" rx="10" fill="#bfe6ff" stroke="#b99a74" stroke-width="10"/><path d="M525 80V310M430 195H620" stroke="#b99a74" stroke-width="6"/><g fill="#7cc66a"><circle cx="0" cy="640" r="40"/><circle cx="-30" cy="600" r="32"/></g><rect x="-30" y="650" width="50" height="60" fill="#c9554a"/>`}];
+
+const CATS=[['top','상의',TOPS,'30 186 548 360'],['bottom','하의',BOTS,'140 470 330 520'],['dress','원피스',DRESS,'30 186 548 740'],['shoes','신발',SHOES,'180 840 250 210'],['hat','머리',HATS,'200 -40 210 130'],['face','얼굴',FACES,'250 80 110 100'],['item','소품',ITEMS,'510 290 120 310'],['bg','배경',BGS,`${VB.x} ${VB.y} ${VB.w} ${VB.h}`],['bubble','말풍선']];
+const DEF={top:2,bottom:2,dress:0,shoes:2,hat:1,face:0,item:0,bg:1,b:{on:true,text:'안녕! 나 깅혱잉이야',style:'round',x:530,y:60}};
+const BASIC={top:0,bottom:0,dress:0,shoes:0,hat:0,face:0,item:0,bg:0};
+const $=id=>document.getElementById(id);
+let st=JSON.parse(JSON.stringify(DEF)),tab='top';
+try{const s=JSON.parse(localStorage.getItem('gk-v1')||'null');if(s)st={...st,...s,b:{...st.b,...(s.b||{})}}}catch(e){}
+const save=()=>{try{localStorage.setItem('gk-v1',JSON.stringify(st))}catch(e){}};
+
+/* 말풍선 */
+const FS=30,LH=37,MAXW=170,MOUTH=[302,147];
+const mctx=document.createElement('canvas').getContext('2d');
+function wrap(t){
+ mctx.font=`${FS}px Jua, sans-serif`;
+ const out=[];let cur='';
+ for(const ch of [...(t||' ')]){
+  const nx=cur+ch;
+  if(mctx.measureText(nx).width>MAXW&&cur){const sp=cur.lastIndexOf(' ');if(sp>0&&ch!==' '){out.push(cur.slice(0,sp));cur=cur.slice(sp+1)+ch}else{out.push(cur);cur=ch===' '?'':ch}}
+  else cur=nx;
+ }
+ if(cur)out.push(cur);
+ return out.slice(0,5).map(s=>s.trim());
+}
+let bubLayout=null;
+function bubble(){
+ const b=st.b;if(!b.on||!b.text.trim()){bubLayout=null;return''}
+ const lines=wrap(b.text);mctx.font=`${FS}px Jua, sans-serif`;
+ const w=Math.max(100,Math.max(...lines.map(l=>mctx.measureText(l).width))+46),h=lines.length*LH+30;
+ const pad=b.style==='shout'?22:b.style==='think'?14:0;
+ const X0=VB.x,X1=VB.x+VB.w,Y0=VB.y,Y1=VB.y+VB.h;
+ b.x=Math.min(X1-w/2-pad-8,Math.max(X0+w/2+pad+8,b.x));b.y=Math.min(Y1-h/2-pad-8,Math.max(Y0+h/2+pad+8,b.y));
+ if(b.y-h/2-pad<230){if(b.x>=303){const m=420+w/2+pad;if(b.x<m)b.x=Math.min(m,X1-w/2-pad-4)}else{const m=188-w/2-pad;if(b.x>m)b.x=Math.max(m,X0+w/2+pad+4)}}
+ const cx=b.x,cy=b.y,dx=MOUTH[0]-cx,dy=MOUTH[1]-cy,d=Math.hypot(dx,dy)||1,ux=dx/d,uy=dy/d,px=-uy,py=ux;
+ const edge=Math.min(Math.abs((w/2)/(ux||1e-6)),Math.abs((h/2)/(uy||1e-6)));
+ const reach=Math.max(edge+20,Math.min(edge+56,d-(b.style==='think'?72:50)));
+ const tip=[cx+ux*reach,cy+uy*reach],bx=cx+ux*(edge-12),by=cy+uy*(edge-12);
+ const tail=`M${bx+px*15} ${by+py*15}L${tip[0]} ${tip[1]}L${bx-px*15} ${by-py*15}Z`;
+ let body,tailS;
+ if(b.style==='think'){
+  body=`<ellipse cx="${cx}" cy="${cy}" rx="${w/2+14}" ry="${h/2+12}"/>`;
+  tailS=[0.55,0.8,1].map((k,i)=>`<circle cx="${cx+ux*(edge+14+k*(reach-edge))}" cy="${cy+uy*(edge+14+k*(reach-edge))}" r="${11-i*3}"/>`).join('');
+ }else if(b.style==='shout'){
+  const n=18,rx=w/2+22,ry=h/2+22;let pts=[];
+  for(let i=0;i<n*2;i++){const a=i*Math.PI/n,r=i%2?.8:1;pts.push(`${(cx+Math.cos(a)*rx*r).toFixed(1)},${(cy+Math.sin(a)*ry*r).toFixed(1)}`)}
+  body=`<polygon points="${pts.join(' ')}"/>`;tailS=`<path d="${tail}"/>`;
+ }else{body=`<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="26"/>`;tailS=`<path d="${tail}"/>`}
+ const fill=b.style==='shout'?'#fff36b':'#fff';
+ const ty=cy-(lines.length-1)*LH/2+FS*0.35;
+ bubLayout={lines,cx,ty};
+ return `<g fill="#222" stroke="#222" stroke-width="7" stroke-linejoin="round">${body}${tailS}</g><g fill="${fill}">${body}${tailS}</g><text class="btxt" x="${cx}" y="${ty}" text-anchor="middle" font-family="Jua, sans-serif" font-size="${FS}" fill="#222">${lines.map((l,i)=>`<tspan x="${cx}" dy="${i?LH:0}">${l.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</tspan>`).join('')}</text>`;
+}
+const drawBub=()=>{$('Lbub').innerHTML=bubble()};
+
+function draw(hop){
+ $('Lbg').innerHTML=BGS[st.bg].s;
+ /* 신발은 바지 위(가장 바깥)에 그림. 단, 발목까지 내려오는 원피스는 부츠 위로 덮이게 */
+ $('Lwear').innerHTML=st.dress?SHOES[st.shoes].s+DRESS[st.dress].s:BOTS[st.bottom].s+TOPS[st.top].s+SHOES[st.shoes].s;
+ $('Lacc').innerHTML=FACES[st.face].s+HATS[st.hat].s+ITEMS[st.item].s;
+ drawBub();
+ if(hop){const g=$('person');g.classList.remove('hop');void g.getBoundingClientRect();g.classList.add('hop')}
+ save();
+}
+function thumb(k,it,vb){
+ if(k!=='bg'&&!it.s)return'<span class="none">기본</span>';
+ return `<svg viewBox="${vb}" aria-hidden="true"><defs>${DEFS}</defs>${it.s}</svg>`;
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function renderTabs(){
+ $('tabs').innerHTML=CATS.map(c=>`<button type="button" class="tab" role="tab" data-k="${c[0]}" aria-selected="${c[0]===tab}">${c[1]}</button>`).join('');
+ if(tab==='bubble'){
+  const b=st.b;
+  $('panel').innerHTML=`<div class="bp"><div class="seg"><button type="button" class="pill" id="bon" aria-pressed="${b.on}">${b.on?'말풍선 켜짐':'말풍선 꺼짐'}</button></div>
+  <label for="btxt">할 말</label><input type="text" id="btxt" maxlength="40" value="${esc(b.text)}" placeholder="예: 오늘 옷 어때?">
+  <label>모양</label><div class="seg">${[['round','말하기'],['think','생각'],['shout','외치기']].map(([k,n])=>`<button type="button" class="pill bst" data-s="${k}" aria-pressed="${b.style===k}">${n}</button>`).join('')}</div>
+  <p class="hint">말풍선을 손가락으로 끌어서 원하는 곳에 옮길 수 있어요. 꼬리는 자동으로 깅혱잉 입을 가리켜요.</p></div>`;
+  return;
+ }
+ const c=CATS.find(c=>c[0]===tab);
+ const note=tab==='dress'?'<p class="hint" style="margin:0 0 10px">원피스를 고르면 상의·하의 대신 입어요.</p>':(tab==='top'||tab==='bottom')&&st.dress?'<p class="hint" style="margin:0 0 10px">지금은 원피스를 입고 있어요. 여기서 고르면 원피스를 벗어요.</p>':'';
+ $('panel').innerHTML=`${note}<div class="grid">${c[2].map((it,i)=>`<button type="button" class="it" data-i="${i}" aria-pressed="${st[tab]===i&&!((tab==='top'||tab==='bottom')&&st.dress)}">${thumb(tab,it,c[3])}<span>${it.n}</span></button>`).join('')}</div>`;
+}
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;tab=b.dataset.k;renderTabs()});
+$('panel').addEventListener('click',e=>{
+ const it=e.target.closest('.it');if(it){st[tab]=+it.dataset.i;if(tab==='top'||tab==='bottom')st.dress=0;renderTabs();draw(true);return}
+ if(e.target.closest('#bon')){st.b.on=!st.b.on;renderTabs();drawBub();save();return}
+ const s=e.target.closest('.bst');if(s){st.b.style=s.dataset.s;st.b.on=true;renderTabs();drawBub();save()}
+});
+$('panel').addEventListener('input',e=>{if(e.target.id==='btxt'){st.b.text=e.target.value;if(!st.b.on){st.b.on=true;const p=$('bon');if(p){p.setAttribute('aria-pressed','true');p.textContent='말풍선 켜짐'}}drawBub();save()}});
+$('reset').addEventListener('click',()=>{Object.assign(st,BASIC);renderTabs();draw(true)});
+const r=n=>Math.floor(Math.random()*n);
+$('rand').addEventListener('click',()=>{Object.assign(st,{top:r(TOPS.length),bottom:r(BOTS.length),dress:r(3)?0:1+r(DRESS.length-1),shoes:r(SHOES.length),hat:r(HATS.length),face:r(3)?0:1+r(FACES.length-1),item:r(ITEMS.length),bg:r(BGS.length)});renderTabs();draw(true)});
+
+/* 말풍선 끌기 */
+const scene=$('scene');let drag=null;
+const toSvg=e=>{const p=scene.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(scene.getScreenCTM().inverse())};
+$('Lbub').addEventListener('pointerdown',e=>{const p=toSvg(e);drag={dx:st.b.x-p.x,dy:st.b.y-p.y,id:e.pointerId};$('Lbub').classList.add('drag');try{$('Lbub').setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+$('Lbub').addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const p=toSvg(e);st.b.x=p.x+drag.dx;st.b.y=p.y+drag.dy;drawBub()});
+const end=()=>{if(drag){drag=null;$('Lbub').classList.remove('drag');save()}};
+$('Lbub').addEventListener('pointerup',end);$('Lbub').addEventListener('pointercancel',end);
+
+/* 사진 */
+const urls={};let blob=null;
+['gk.png','gk_hair.png'].forEach(f=>{const i=new Image();i.onload=()=>{try{const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;c.getContext('2d').drawImage(i,0,0);urls[f]=c.toDataURL('image/png')}catch(e){}};i.src=f});
+const SC=1.5,CW=Math.round(VB.w*SC),CH=Math.round(VB.h*SC);
+$('shotBtn').addEventListener('click',async()=>{
+ try{await document.fonts.load(`${FS}px Jua`)}catch(e){}
+ const cl=scene.cloneNode(true);
+ cl.querySelectorAll('.btxt').forEach(t=>t.remove());
+ if(urls['gk.png'])cl.querySelector('#char').setAttribute('href',urls['gk.png']);
+ if(urls['gk_hair.png'])cl.querySelector('#hair').setAttribute('href',urls['gk_hair.png']);
+ cl.setAttribute('width',CW);cl.setAttribute('height',CH);
+ const xml=new XMLSerializer().serializeToString(cl);
+ const img=new Image();
+ img.onload=()=>{
+  const c=document.createElement('canvas');c.width=CW;c.height=CH;const x=c.getContext('2d');
+  x.drawImage(img,0,0,CW,CH);
+  if(bubLayout){x.setTransform(SC,0,0,SC,-VB.x*SC,-VB.y*SC);x.fillStyle='#222';x.font=`${FS}px Jua, sans-serif`;x.textAlign='center';x.textBaseline='alphabetic';bubLayout.lines.forEach((l,i)=>x.fillText(l,bubLayout.cx,bubLayout.ty+i*LH))}
+  $('shot').src=c.toDataURL('image/png');c.toBlob(b=>{blob=b},'image/png');
+  $('msg').textContent='사진을 길게 눌러 저장하거나 공유하세요.';$('ov').hidden=false;
+ };
+ img.onerror=()=>{$('msg').textContent='사진을 만들지 못했어요.';$('ov').hidden=false};
+ img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+});
+$('share').addEventListener('click',async()=>{
+ if(!blob)return;const file=new File([blob],'깅혱잉.png',{type:'image/png'});
+ try{
+  if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='깅혱잉.png';document.body.appendChild(a);a.click();a.remove();$('msg').textContent='사진을 내려받았어요.';
+ }catch(e){if(e&&e.name!=='AbortError')$('msg').textContent='여기서는 공유가 막혀 있어요. 사진을 길게 눌러 저장해 주세요.'}
+});
+$('close').addEventListener('click',()=>{$('ov').hidden=true});
+$('ov').addEventListener('click',e=>{if(e.target.id==='ov')$('ov').hidden=true});
+
+renderTabs();draw(false);
+if(document.fonts)document.fonts.ready.then(drawBub);
+if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
+}
+</script>
+</body>
+</html>
